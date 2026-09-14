@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{base :: head}">
+    <title>Skapa konto eller logga in</title>
+</head>
+
+<body>
+<div th:fragment="content">
+
+    <div class="max-w-5xl mx-auto px-6 py-12">
+
+        <div class="text-center mb-10">
+            <i class="fas fa-user-circle text-6xl text-amber-600 mb-4"></i>
+            <h1 class="text-4xl font-bold mb-3">Välkommen</h1>
+            <p class="text-gray-600">
+                Skapa ett nytt konto eller logga in med dina befintliga uppgifter.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+
+            <!-- CREATE NEW CUSTOMER -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+
+                <div class="text-center mb-6">
+                    <i class="fas fa-user-plus text-5xl text-amber-600 mb-4"></i>
+                    <h2 class="text-2xl font-bold">Skapa nytt konto</h2>
+                    <p class="text-gray-600 mt-2">
+                        Är du ny kund? Fyll i dina uppgifter här.
+                    </p>
+                </div>
+
+                <div th:if="${registerError}"
+                     class="bg-red-100 border border-red-300 text-red-700 rounded-xl p-4 mb-5"
+                     th:text="${registerError}">
+                </div>
+
+                <form th:action="@{/customers/new}" method="post" class="space-y-5">
+
+                    <div>
+                        <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Namn
+                        </label>
+                        <input id="name"
+                               type="text"
+                               name="name"
+                               required
+                               placeholder="Ditt fullständiga namn"
+                               class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                            E-post
+                        </label>
+                        <input id="email"
+                               type="email"
+                               name="email"
+                               required
+                               placeholder="namn@example.com"
+                               class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+
+                    <div>
+                        <label for="phoneNumber" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Telefonnummer
+                        </label>
+                        <input id="phoneNumber"
+                               type="text"
+                               name="phoneNumber"
+                               required
+                               placeholder="0701234567"
+                               class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Lösenord
+                        </label>
+                        <input id="password"
+                               type="password"
+                               name="password"
+                               required
+                               placeholder="Välj ett lösenord"
+                               class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+
+                    <button type="submit"
+                            class="w-full bg-amber-600 hover:bg-amber-700 text-white px-6 py-4 rounded-xl font-semibold transition">
+                        Skapa konto
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- LOGIN EXISTING CUSTOMER -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+
+                <form th:action="@{/login}" method="post" class="space-y-5">
+
+        </div>
+
+        <div class="text-center mt-8">
+            <a href="/"
+               class="inline-block border border-gray-300 hover:bg-gray-100 text-gray-700 px-8 py-4 rounded-xl font-semibold transition">
+                Till startsidan
+            </a>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

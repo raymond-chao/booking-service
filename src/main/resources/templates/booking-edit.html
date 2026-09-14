@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{base :: head}">
+    <title th:text="${pageTitle}"></title>
+</head>
+
+<body>
+<div th:fragment="content">
+
+    <div class="max-w-3xl mx-auto px-6 py-12">
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+
+            <div class="text-center mb-8">
+                <i class="fas fa-pen-to-square text-6xl text-blue-600 mb-4"></i>
+                <h1 class="text-4xl font-bold mb-2">Ändra bokning</h1>
+                <p class="text-gray-600">
+                    Uppdatera datum, rum eller antal gäster.
+                </p>
+            </div>
+
+            <p th:if="${error}"
+               class="bg-red-100 border border-red-300 text-red-700 rounded-xl p-4 mb-6"
+               th:text="${error}">
+            </p>
+
+            <form th:action="@{'/bookings/update/' + ${booking.id}}" method="post" class="space-y-6">
+
+                <div>
+                    <label for="roomId" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Rum
+                    </label>
+                    <select id="roomId"
+                            name="roomId"
+                            required
+                            class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                        <option th:each="room : ${rooms}"
+                                th:value="${room.id}"
+                                th:selected="${room.id.equals(booking.room.id)}"
+                                th:text="'Rum ' + ${room.roomNumber} + ' - ' + ${room.beds} + ' sängar'">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="checkInDate" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Incheckningsdatum
+                        </label>
+                        <input id="checkInDate"
+                               name="checkInDate"
+                               type="date"
+                               required
+                               th:value="${booking.checkInDate}"
+                               class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="checkOutDate" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Utcheckningsdatum
+                        </label>
+                        <input id="checkOutDate"
+                               name="checkOutDate"
+                               type="date"
+                               required
+                               th:value="${booking.checkOutDate}"
+                               class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-4 pt-4">
+                    <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition">
+                        Spara ändringar
+                    </button>
+
+                    <a th:href="@{'/account?email=' + ${booking.customerEmail}}"
+                       class="border border-gray-300 hover:bg-gray-100 text-gray-700 px-8 py-4 rounded-xl font-semibold transition text-center">
+                        Avbryt
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

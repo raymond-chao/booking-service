@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<body>
+
+<nav th:fragment="navbar" class="bg-white shadow-md font-display">
+
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+        <!-- LEFT SIDE -->
+        <div class="flex items-center gap-6">
+            <a th:href="@{/}" class="text-xl font-bold text-gray-800">
+                Pensionat RMJ
+            </a>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="flex items-center gap-4">
+
+            <a th:href="@{/rooms}"
+               class="px-4 py-2 border rounded-xl text-gray-700 hover:bg-gray-100">
+                Rum
+            </a>
+
+
+            <a th:href="@{/account}"
+               class="px-4 py-2 border rounded-xl text-gray-700 hover:bg-gray-100">
+                Mitt konto
+            </a>
+
+
+            <!-- Registrering: peka om till kundtjänsten senare, eller ta bort -->
+            <a th:href="@{/customers/new}"
+               class="px-4 py-2 border rounded-xl text-gray-700 hover:bg-gray-100">
+                Skapa konto
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+</body>
+</html>

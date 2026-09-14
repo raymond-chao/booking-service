@@ -1,0 +1,30 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: #1f2937;
+    padding: 12px 20px;
+    font-family: "Playfair Display", serif;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.navbar a:hover {
+    color: #60a5fa;
+}
+
+.brand {
+    font-size: 18px;
+    font-weight: bold;
+}

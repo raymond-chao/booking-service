@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{base :: head}">
+    <title th:text="${pageTitle}"></title>
+</head>
+
+<body>
+<div th:fragment="content">
+
+    <div class="max-w-3xl mx-auto px-6 py-12">
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+
+            <div class="mb-8 text-center">
+                <i class="fas fa-calendar-check text-6xl text-amber-600 mb-4"></i>
+                <h1 class="text-4xl font-bold mb-2" th:text="${pageTitle}"></h1>
+                <p class="text-gray-600">
+                    Fyll i dina uppgifter för att boka rummet.
+                </p>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8">
+                <h2 class="text-2xl font-semibold mb-3" th:text="'Rum ' + ${room.roomNumber}"></h2>
+
+                <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
+                    <div>
+                        <span class="font-semibold block">Antal sängar</span>
+                        <span th:text="${room.beds}"></span>
+                    </div>
+
+                    <div>
+                        <span class="font-semibold block">Pris per natt</span>
+                        <span th:text="${room.pricePerNight} + ' kr'"></span>
+                    </div>
+                </div>
+
+                <p class="text-gray-600 mt-4" th:text="${room.description}"></p>
+            </div>
+
+            <form th:action="@{/book-room}" method="post" class="space-y-6">
+                <input type="hidden" id="roomId" name="roomId" th:value="${room.id}">
+
+                <div class="space-y-2">
+                    <div>
+                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                            E-post
+                        </label>
+                        <input id="email"
+                               name="email"
+                               type="email"
+                               required
+                               class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="checkInDate" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Incheckningsdatum
+                        </label>
+                        <input id="checkInDate"
+                               name="checkInDate"
+                               type="date"
+                               required
+                               th:value="${checkIn}"
+                               class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="checkOutDate" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Utcheckningsdatum
+                        </label>
+                        <input id="checkOutDate"
+                               name="checkOutDate"
+                               type="date"
+                               required
+                               th:value="${checkOut}"
+                               class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="numOfGuests" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Antal gäster
+                    </label>
+                    <input id="numOfGuests"
+                           name="numOfGuests"
+                           type="number"
+                           required
+                           min="1"
+                           th:max="${room.beds}"
+                           value="1"
+                           class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-xs text-gray-500 mt-1" th:text="'Max ' + ${room.beds} + ' gäster'"></p>
+                </div>
+
+                <p id="availabilityMessage" class="hidden rounded-xl p-4"></p>
+
+                <button id="submitBookingButton"
+                        type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition">
+                    Boka rum
+                </button>
+
+                <a href="/rooms"
+                   class="border border-gray-300 hover:bg-gray-100 text-gray-700 px-8 py-4 rounded-xl font-semibold transition text-center">
+                    Tillbaka till rum
+                </a>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const roomIdInput = document.getElementById('roomId');
+    const checkInInput = document.getElementById('checkInDate');
+    const checkOutInput = document.getElementById('checkOutDate');
+    const availabilityMessage = document.getElementById('availabilityMessage');
+    const submitButton = document.getElementById('submitBookingButton');
+
+    async function checkAvailability() {
+        const roomId = roomIdInput.value;
+        const checkIn = checkInInput.value;
+        const checkOut = checkOutInput.value;
+
+        availabilityMessage.classList.add('hidden');
+        availabilityMessage.textContent = '';
+
+        if (!roomId || !checkIn || !checkOut) {
+            submitButton.disabled = false;
+            return;
+        }
+
+        try {
+            const response = await fetch(`/book-room/check-availability?roomId=${roomId}&checkIn=${checkIn}&checkOut=${checkOut}`);
+            const result = await response.json();
+
+            availabilityMessage.classList.remove('hidden');
+
+            if (result.available) {
+                availabilityMessage.className = 'bg-green-100 border border-green-300 text-green-700 rounded-xl p-4';
+                availabilityMessage.textContent = result.message;
+                submitButton.disabled = false;
+                submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                availabilityMessage.className = 'bg-red-100 border border-red-300 text-red-700 rounded-xl p-4';
+                availabilityMessage.textContent = result.message;
+                submitButton.disabled = true;
+                submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        } catch (error) {
+            availabilityMessage.classList.remove('hidden');
+            availabilityMessage.className = 'bg-red-100 border border-red-300 text-red-700 rounded-xl p-4';
+            availabilityMessage.textContent = 'Kunde inte kontrollera tillgänglighet just nu.';
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    checkInInput.addEventListener('change', checkAvailability);
+    checkOutInput.addEventListener('change', checkAvailability);
+
+    checkAvailability();
+</script>
+</body>
+</html>

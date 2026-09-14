@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{base :: head}">
+    <title>Mitt konto</title>
+</head>
+
+<body class="bg-gray-50">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="max-w-4xl mx-auto px-6 py-10">
+
+    <div class="bg-white rounded-2xl shadow-lg p-8">
+        <div th:if="${error}"
+             class="bg-red-100 border border-red-300 text-red-700 rounded-xl p-4 mb-6"
+             th:text="${error}">
+        </div>
+
+        <h1 class="text-4xl font-bold mb-6">
+            <i class="fas fa-user-cog text-amber-600 mr-3"></i>
+            Mitt konto
+        </h1>
+
+        <!-- PROFILE -->
+        <!-- Visas när ingen kund: formuläret -->
+        <div th:if="${customer == null}" class="border rounded-2xl p-6 mb-8">
+            <p class="mb-4">Skriv in din email för att se ditt konto.</p>
+            <form action="/account" method="get">
+                <input name="email" type="email" required class="border rounded-xl px-4 py-3">
+                <button type="submit" class="bg-amber-600 text-white px-5 py-3 rounded-xl">
+                    Visa konto
+                </button>
+            </form>
+        </div>
+
+        <!-- Visas när kund finns: profilen -->
+        <div th:if="${customer != null}" class="border rounded-2xl p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Profil</h2>
+            <p class="mb-2">
+                <span class="font-semibold">Namn:</span>
+                <span th:text="${customer.name}"></span>
+            </p>
+            <p class="mb-4">
+                <span class="font-semibold">Email:</span>
+                <span th:text="${customer.email}"></span>
+            </p>
+            <form th:action="@{/account/delete}" method="post"
+                  onsubmit="return confirm('Är du säker på att du vill ta bort ditt konto?');">
+                <input type="hidden" name="email" th:value="${customer.email}">
+                <button type="submit"
+                        class="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl font-semibold transition">
+                    Ta bort mitt konto
+                </button>
+            </form>
+
+        </div>
+
+<!--            <a href="/account/edit"-->
+<!--               class="bg-amber-600 hover:bg-amber-700 text-white px-5 py-3 rounded-xl inline-block transition">-->
+<!--                Ändra uppgifter-->
+<!--            </a>-->
+        </div>
+
+        <!-- MY BOOKINGS -->
+        <div class="border rounded-2xl p-6">
+            <h2 class="text-2xl font-semibold mb-4">
+                <i class="fas fa-calendar-check text-amber-600 mr-2"></i>
+                Mina bokningar
+            </h2>
+
+            <!-- NO BOOKINGS -->
+            <div th:if="${bookings == null or bookings.isEmpty()}"
+                 class="text-gray-600">
+                <p class="mb-4">Du har inga bokningar än.</p>
+                <a href="/rooms"
+                   class="bg-amber-600 hover:bg-amber-700 text-white px-5 py-3 rounded-xl inline-block transition">
+                    Boka ett rum
+                </a>
+            </div>
+
+            <!-- BOOKINGS LIST -->
+            <div th:unless="${bookings == null or bookings.isEmpty()}"
+                 class="space-y-4">
+
+                <div th:each="booking : ${bookings}"
+                     class="border rounded-xl p-5 bg-gray-50">
+
+                    <div class="flex flex-wrap justify-between gap-4">
+
+                        <div class="space-y-1 text-gray-700">
+                            <p>
+                                <span class="font-semibold">Rum:</span>
+                                <span th:text="${booking.room.roomNumber}"></span>
+                            </p>
+                            <p>
+                                <span class="font-semibold">Incheckning:</span>
+                                <span th:text="${booking.checkInDate}"></span>
+                            </p>
+                            <p>
+                                <span class="font-semibold">Utcheckning:</span>
+                                <span th:text="${booking.checkOutDate}"></span>
+                            </p>
+                            <p>
+                                <span class="font-semibold">Bokningsnummer:</span>
+                                <span th:text="${booking.bookingConfirmation}"></span>
+                            </p>
+                            <p>
+                                <span class="font-semibold">Status:</span>
+                                <span th:text="${booking.status}"></span>
+                            </p>
+                        </div>
+
+                        <div th:if="${booking.status.name() == 'ACTIVE'}"
+                             class="flex flex-col gap-2 justify-center">
+
+                            <a th:href="@{'/bookings/edit/' + ${booking.id}}"
+                               class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold transition text-center">
+                                Ändra
+                            </a>
+
+                            <form th:action="@{'/bookings/cancel/' + ${booking.id}}"
+                                  method="post"
+                                  onsubmit="return confirm('Är du säker på att du vill avboka bokningen?');">
+                                <button type="submit"
+                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl font-semibold transition">
+                                    Avboka
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

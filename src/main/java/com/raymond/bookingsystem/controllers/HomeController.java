@@ -1,0 +1,21 @@
+package com.raymond.bookingsystem.controllers;
+
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class HomeController {
+    @GetMapping("/")
+    public String home(Model model) {
+        model.addAttribute("pageTitle", "Välkommen till Pensionat");
+        return "index";
+    }
+    @GetMapping("/index")
+    public String index(Model model) {
+        model.addAttribute("pageTitle", "Välkommen till Pensionat");
+        return "index";
+    }
+
+}

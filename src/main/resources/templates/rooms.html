@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{base :: head}">
+    <title th:text="${pageTitle}"></title>
+</head>
+
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:fragment="content">
+
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        <h1 class="text-4xl font-bold text-center mb-10" th:text="${pageTitle}"></h1>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div th:each="room : ${rooms}"
+                 class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition">
+
+                <div class="h-48 bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
+                    <i class="fas fa-bed text-7xl text-amber-600"></i>
+                </div>
+
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-2xl font-semibold" th:text="'Rum ' + ${room.roomNumber}"></h3>
+                    </div>
+
+                    <p class="text-gray-600 text-sm mb-4" th:text="${room.description}"></p>
+
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <span class="text-3xl font-bold text-amber-600" th:text="${room.pricePerNight}"></span>
+                            <span class="text-gray-500"> kr/natt</span>
+                        </div>
+
+                            <a th:href="@{/book-room(roomId=${room.id})}"
+                               class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition">
+                                Boka detta rum
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
