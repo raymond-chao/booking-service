@@ -12,7 +12,7 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret:min-superhemliga-jwt-nyckel-som-ar-jattelang-123}")
+    @Value("${jwt.secret:}")
     private String jwtSecret;
 
     private SecretKey getKey(){
