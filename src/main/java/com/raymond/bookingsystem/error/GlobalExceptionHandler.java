@@ -26,13 +26,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGeneric(Exception ex) {
-        log.error("unexpected error", ex);
+        log.error("unexpected server error", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Unexpected error: " + ex.getMessage());      //500
+                .body("Unexpected error: " );      //500
     }
 
     @ExceptionHandler(ServiceUnavailableException.class)
     public ResponseEntity<String> handleServiceUnavailable(ServiceUnavailableException ex) {
+        //Jag tar bort denna logg då det blir dubbleter för samma problem, CustomerClient loggar det
+        //log.warn("Service unavailable", ex);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)   // 503
                 .body(ex.getMessage());
     }

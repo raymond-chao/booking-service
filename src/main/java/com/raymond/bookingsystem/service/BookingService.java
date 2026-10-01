@@ -42,17 +42,17 @@ public class BookingService {
 
 
         if (!booking.getCheckOutDate().isAfter(booking.getCheckInDate())) {
-            log.warn("Invalid booking dates");
+            log.debug("Invalid booking dates");
             throw new BadRequestException("Utcheckningsdatum måste vara efter incheckningsdatum.");
         }
         if (!customerClient.customerExists(email)) {
-            log.warn("Customer not found");
+            log.debug("Customer not found");
             throw new NotFoundException("Kund finns inte: " + email);
         }
 
         Room room = roomRepository.findById(booking.getRoom().getId())
                 .orElseThrow(()->{
-                    log.warn("Room not found");
+                    log.debug("Room not found");
                     return new NotFoundException("Rummet hittades inte");
                 });
 
@@ -68,7 +68,7 @@ public class BookingService {
                 );
 
         if (!conflicts.isEmpty()) {
-            log.warn("Conflicting bookings");
+            log.debug("Conflicting bookings");
             throw new ConflictException("Rummet redan bokat dessa datum");
         }
 
@@ -94,12 +94,12 @@ public class BookingService {
 
     private void validateGuests(int numOfGuests, int beds) {
         if (numOfGuests < 1) {
-            log.warn("Invalid number of guests, must be at least 1");
-            throw new RuntimeException("Antal gäster måste vara minst 1.");
+            log.debug("Invalid number of guests, must be at least 1");
+            throw new BadRequestException("Antal gäster måste vara minst 1.");
         }
         if (numOfGuests > beds) {
-            log.warn("Booking rejected, number of guests exceeds room capacity");
-            throw new RuntimeException("Antal gäster överstiger antalet sängar i rummet.");
+            log.debug("Booking rejected, number of guests exceeds room capacity");
+            throw new BadRequestException("Antal gäster överstiger antalet sängar i rummet.");
         }
     }
 
@@ -119,19 +119,19 @@ public class BookingService {
     public Booking updateBooking(Long id, Booking updatedBooking) {
 
         if (!updatedBooking.getCheckOutDate().isAfter(updatedBooking.getCheckInDate())) {
-            log.warn("Invalid booking dates");
+            log.debug("Invalid booking dates");
             throw new BadRequestException("Utcheckningsdatum måste vara efter incheckningsdatum.");
         }
 
         Booking existing = bookingRepository.findById(id)
                 .orElseThrow(()->{
-                    log.warn("Booking not found");
+                    log.debug("Booking not found");
                     return new NotFoundException("Bokning hittades inte");
                     });
 
         Room room = roomRepository.findById(updatedBooking.getRoom().getId())
                         .orElseThrow(()->{
-                            log.warn("Room not found");
+                            log.debug("Room not found");
                             return new NotFoundException("Rummet hittades inte");
                         });
 
@@ -148,7 +148,7 @@ public class BookingService {
                 .anyMatch(b -> !b.getId().equals(id));
 
         if (hasOtherConflicts) {
-            log.warn("Conflicting bookings");
+            log.debug("Conflicting bookings");
             throw new ConflictException("Datumkonflikt. Rummet är redan bokat under valda datum.");
         }
 
@@ -173,7 +173,7 @@ public class BookingService {
     public void cancelBooking(Long id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(()->{
-                    log.warn("Booking not found");
+                    log.debug("Booking not found");
                     return new NotFoundException("Bokning hittades inte");
                 });
 
