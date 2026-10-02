@@ -48,12 +48,24 @@ public class BookingIntegrationTest {
 
     @Test
     void skapaBokningGer201() throws Exception {
+
+        LocalDate checkIn = LocalDate.now().plusDays(10);
+        LocalDate checkOut = LocalDate.now().plusDays(15);
+
 //        Arrange
         when(customerClient.customerExists("hej@test.com")).thenReturn(true);
 
 //        Act and assert
         mockMvc.perform(post("/api/bookings").header("Authorization", bearerToken()).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-10-01\",\"checkOutDate\":\"2026-10-05\",\"customerEmail\":\"hej@test.com\"}"))
+                        //.content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-10-01\",\"checkOutDate\":\"2026-10-05\",\"customerEmail\":\"hej@test.com\"}"))
+                        .content("""
+                                {
+                                  "room": {"id": 1},
+                                  "checkInDate": "%s",
+                                  "checkOutDate": "%s",
+                                  "customerEmail": "hej@test.com"
+                                }
+                                """.formatted(checkIn, checkOut)))
                 .andExpect(status().isCreated());
 
     }
