@@ -113,14 +113,14 @@ public class BookingIntegrationTest {
         when(customerClient.customerExists(any())).thenReturn(false);
 
         mockMvc.perform(post("/api/bookings").header("Authorization", bearerToken()).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-10-01\",\"checkOutDate\":\"2026-10-05\",\"customerEmail\":\"hej@test.com\"}"))
+                        .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-12-01\",\"checkOutDate\":\"2026-12-05\",\"customerEmail\":\"hej@test.com\"}"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void utanTokenGer401() throws Exception {
         mockMvc.perform(post("/api/bookings").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-10-01\",\"checkOutDate\":\"2026-10-05\",\"customerEmail\":\"hej@test.com\"}"))
+                        .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-12-01\",\"checkOutDate\":\"2026-12-05\",\"customerEmail\":\"hej@test.com\"}"))
                 .andExpect(status().isUnauthorized());
     }
 
