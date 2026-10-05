@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import org.slf4j.*;
 
 @Service
 public class BookingService {
@@ -24,6 +25,9 @@ public class BookingService {
     private final CustomerClient customerClient;
 
     private final RoomRepository roomRepository;
+
+    private static final Logger log= LoggerFactory.getLogger(BookingService.class);
+
     
     public BookingService(BookingRepository bookingRepository,
                           RoomRepository roomRepository,
@@ -38,14 +42,20 @@ public class BookingService {
 
 
         if (!booking.getCheckOutDate().isAfter(booking.getCheckInDate())) {
+            log.debug("Invalid booking dates");
             throw new BadRequestException("Utcheckningsdatum måste vara efter incheckningsdatum.");
         }
         if (!customerClient.customerExists(email)) {
+            log.debug("Customer not found");
             throw new NotFoundException("Kund finns inte: " + email);
         }
 
         Room room = roomRepository.findById(booking.getRoom().getId())
-                .orElseThrow(() -> new NotFoundException("Rummet hittades inte"));
+                .orElseThrow(()->{
+                    log.debug("Room not found");
+                    return new NotFoundException("Rummet hittades inte");
+                });
+
 
         booking.setCustomerEmail(email);
         booking.setRoom(room);
@@ -58,6 +68,7 @@ public class BookingService {
                 );
 
         if (!conflicts.isEmpty()) {
+            log.debug("Conflicting bookings");
             throw new ConflictException("Rummet redan bokat dessa datum");
         }
 
@@ -65,7 +76,11 @@ public class BookingService {
 
         booking.setStatus(BookingStatus.ACTIVE);
     
-        return bookingRepository.save(booking);
+        //return bookingRepository.save(booking);
+        //dela upp föregående rad till nedan för att kunna spara info-logg
+        Booking savedBooking = bookingRepository.save(booking);
+        log.info("Booking created by, id: "+savedBooking.getId());
+        return savedBooking;
     }
 
     private void validateDates(LocalDate checkIn, LocalDate checkOut) {
@@ -79,10 +94,12 @@ public class BookingService {
 
     private void validateGuests(int numOfGuests, int beds) {
         if (numOfGuests < 1) {
-            throw new RuntimeException("Antal gäster måste vara minst 1.");
+            log.debug("Invalid number of guests, must be at least 1");
+            throw new BadRequestException("Antal gäster måste vara minst 1.");
         }
         if (numOfGuests > beds) {
-            throw new RuntimeException("Antal gäster överstiger antalet sängar i rummet.");
+            log.debug("Booking rejected, number of guests exceeds room capacity");
+            throw new BadRequestException("Antal gäster överstiger antalet sängar i rummet.");
         }
     }
 
@@ -102,14 +119,21 @@ public class BookingService {
     public Booking updateBooking(Long id, Booking updatedBooking) {
 
         if (!updatedBooking.getCheckOutDate().isAfter(updatedBooking.getCheckInDate())) {
+            log.debug("Invalid booking dates");
             throw new BadRequestException("Utcheckningsdatum måste vara efter incheckningsdatum.");
         }
 
         Booking existing = bookingRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Bokning hittades inte"));
+                .orElseThrow(()->{
+                    log.debug("Booking not found");
+                    return new NotFoundException("Bokning hittades inte");
+                    });
 
         Room room = roomRepository.findById(updatedBooking.getRoom().getId())
-                .orElseThrow(() -> new NotFoundException("Rummet hittades inte"));
+                        .orElseThrow(()->{
+                            log.debug("Room not found");
+                            return new NotFoundException("Rummet hittades inte");
+                        });
 
         validateGuests(updatedBooking.getNumOfGuests(), room.getBeds());
 
@@ -124,6 +148,7 @@ public class BookingService {
                 .anyMatch(b -> !b.getId().equals(id));
 
         if (hasOtherConflicts) {
+            log.debug("Conflicting bookings");
             throw new ConflictException("Datumkonflikt. Rummet är redan bokat under valda datum.");
         }
 
@@ -132,7 +157,12 @@ public class BookingService {
         existing.setNumOfGuests(updatedBooking.getNumOfGuests());
         existing.setRoom(room);
 
-        return bookingRepository.save(existing);
+        //  return bookingRepository.save(existing);
+        //Bryter ner till nedan för att kunna skapa info-logg
+
+        Booking updateBooking = bookingRepository.save(existing);
+        log.info("Booking updated, bookingID: "+updateBooking.getId());
+        return updateBooking;
     }
 
     public Booking getBookingById(Long id) {
@@ -142,9 +172,13 @@ public class BookingService {
     @Transactional
     public void cancelBooking(Long id) {
         Booking booking = bookingRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Bokning hittades inte"));
+                .orElseThrow(()->{
+                    log.debug("Booking not found");
+                    return new NotFoundException("Bokning hittades inte");
+                });
 
         bookingRepository.delete(booking);
+        log.info("Booking cancelled, bookingID: "+booking.getId());
     }
 
     public List<Booking> getAllBookings() {
