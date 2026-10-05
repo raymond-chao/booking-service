@@ -9,11 +9,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.slf4j.*;
 
 @Component
 public class CustomerClient {
 
     private final RestClient restClient;
+    private static final Logger log = LoggerFactory.getLogger(CustomerClient.class);
 
     public CustomerClient(@Value("${customer-service.url}") String baseUrl) {
         this.restClient = RestClient.builder()
@@ -34,6 +36,7 @@ public class CustomerClient {
             return false;
 
         } catch (RestClientException e) {
+            log.warn("Customer service is not available while checking customer");
             throw new ServiceUnavailableException(
                     "Kundtjänst inte tillgänglig, försök igen senare"
             );
@@ -48,6 +51,7 @@ public class CustomerClient {
                     .body(CustomerDTO.class);
 
         } catch (RestClientException e) {
+            log.warn("Customer service is not available while retrieving customer");
             throw new ServiceUnavailableException(
                     "Kundtjänsten är inte tillgänglig, försök igen senare."
             );
@@ -63,6 +67,7 @@ public class CustomerClient {
                     .toBodilessEntity();
 
         } catch (RestClientException e) {
+            log.warn("Customer service is not available while creating customer");
             throw new ServiceUnavailableException(
                     "Kundtjänsten är inte tillgänglig, försök igen senare"
             );
@@ -75,6 +80,7 @@ public class CustomerClient {
             throw new ConflictException("Kunden har aktiva bokningar och kan inte tas bort");
 
         } catch (RestClientException e) {
+            log.warn("Customer service is not available while deleting customer");
             throw new ServiceUnavailableException("Kundtjänsten är inte tillgänlig, försök igen senare");
 
         }
