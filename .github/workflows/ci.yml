@@ -46,4 +46,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/booking-service:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/booking-service:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/booking-service:latest
