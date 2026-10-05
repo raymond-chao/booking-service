@@ -4,10 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.slf4j.*;
 
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<String> handleNotFound(NotFoundException ex) {
@@ -23,12 +26,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGeneric(Exception ex) {
+        log.error("unexpected server error", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Unexpected error: " + ex.getMessage());
+                .body("Unexpected error: " );      //500
     }
 
     @ExceptionHandler(ServiceUnavailableException.class)
     public ResponseEntity<String> handleServiceUnavailable(ServiceUnavailableException ex) {
+        //Jag tar bort denna logg då det blir dubbleter för samma problem, CustomerClient loggar det
+        //log.warn("Service unavailable", ex);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)   // 503
                 .body(ex.getMessage());
     }
