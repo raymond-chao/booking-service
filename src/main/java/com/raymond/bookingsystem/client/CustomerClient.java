@@ -23,6 +23,17 @@ public class CustomerClient {
                 .build();
     }
 
+    public void healthCheck(){
+        try {
+            restClient.get()
+                    .uri("/api/customers")
+                    .retrieve()
+                    .toBodilessEntity();
+        }catch (RestClientException e){
+            throw new ServiceUnavailableException("Customer service unavailable");
+        }
+    }
+
     public boolean customerExists(String email) {
         try {
             restClient.get()

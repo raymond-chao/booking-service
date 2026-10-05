@@ -22,6 +22,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDate;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -45,36 +47,69 @@ public class BookingIntegrationTest {
     }
 
     @Test
-    void skapaBokningGer201() throws Exception{
+    void skapaBokningGer201() throws Exception {
+
+        LocalDate checkIn = LocalDate.now().plusDays(10);
+        LocalDate checkOut = LocalDate.now().plusDays(15);
+
 //        Arrange
         when(customerClient.customerExists("hej@test.com")).thenReturn(true);
 
 //        Act and assert
         mockMvc.perform(post("/api/bookings").header("Authorization", bearerToken()).contentType(MediaType.APPLICATION_JSON)
-                .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-12-01\",\"checkOutDate\":\"2026-12-05\",\"customerEmail\":\"hej@test.com\"}"))
+                        //.content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-10-01\",\"checkOutDate\":\"2026-10-05\",\"customerEmail\":\"hej@test.com\"}"))
+                        .content("""
+                                {
+                                  "room": {"id": 1},
+                                  "checkInDate": "%s",
+                                  "checkOutDate": "%s",
+                                  "customerEmail": "hej@test.com"
+                                }
+                                """.formatted(checkIn, checkOut)))
                 .andExpect(status().isCreated());
 
     }
+
     @Test
-    void dubbelBokningGer409() throws Exception{
+    void dubbelBokningGer409() throws Exception {
 //        Arrange
         when(customerClient.customerExists("hej@test.com")).thenReturn(true);
         when(customerClient.customerExists("da@test.com")).thenReturn(true);
 
+        LocalDate checkIn = LocalDate.now().plusDays(10);
+        LocalDate checkOut = LocalDate.now().plusDays(15);
+
 //        Act and Assert
         mockMvc.perform(post("/api/bookings").header("Authorization", bearerToken()).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-12-01\",\"checkOutDate\":\"2026-12-05\",\"customerEmail\":\"hej@test.com\"}"))
+                        // .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-10-01\",\"checkOutDate\":\"2026-10-05\",\"customerEmail\":\"hej@test.com\"}"))
+                        .content("""
+                                {
+                                  "room": {"id": 1},
+                                  "checkInDate": "%s",
+                                  "checkOutDate": "%s",
+                                  "customerEmail": "hej@test.com"
+                                }
+                                """.formatted(checkIn, checkOut)))
                 .andExpect(status().isCreated());
-        mockMvc.perform(post("/api/bookings").header("Authorization", bearerToken()).contentType(MediaType.APPLICATION_JSON)
-                .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-12-01\",\"checkOutDate\":\"2026-12-05\",\"customerEmail\":\"da@test.com\"}"))
-                .andExpect(status().isConflict());
 
+
+        mockMvc.perform(post("/api/bookings").header("Authorization", bearerToken()).contentType(MediaType.APPLICATION_JSON)
+//                .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-10-01\",\"checkOutDate\":\"2026-10-05\",\"customerEmail\":\"da@test.com\"}"))
+                        .content("""
+                                {
+                                  "room": {"id": 1},
+                                  "checkInDate": "%s",
+                                  "checkOutDate": "%s",
+                                  "customerEmail": "da@test.com"
+                                }
+                                """.formatted(checkIn, checkOut)))
+                .andExpect(status().isConflict());
 
 
     }
 
     @Test
-    void okandKundGer404() throws Exception{
+    void okandKundGer404() throws Exception {
         when(customerClient.customerExists(any())).thenReturn(false);
 
         mockMvc.perform(post("/api/bookings").header("Authorization", bearerToken()).contentType(MediaType.APPLICATION_JSON)
@@ -83,7 +118,7 @@ public class BookingIntegrationTest {
     }
 
     @Test
-    void utanTokenGer401() throws Exception{
+    void utanTokenGer401() throws Exception {
         mockMvc.perform(post("/api/bookings").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"room\":{\"id\":1},\"checkInDate\":\"2026-12-01\",\"checkOutDate\":\"2026-12-05\",\"customerEmail\":\"hej@test.com\"}"))
                 .andExpect(status().isUnauthorized());
