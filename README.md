@@ -7,6 +7,7 @@ GitHub Actions, and the service is deployed on Railway with separate **staging**
 ## Deployed service
 
 - Production: https://booking-service-production-cab8.up.railway.app
+- Staging: https://booking-service-staging-ee31.up.railway.app/
 
 ## Development workflow
 
